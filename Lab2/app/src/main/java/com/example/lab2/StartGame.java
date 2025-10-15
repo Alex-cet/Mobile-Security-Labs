@@ -36,7 +36,7 @@ public class StartGame extends AppCompatActivity {
         String player1_name = p1.getText().toString();
         String player2_name = p2.getText().toString();
 
-        if ((!player1_name.isEmpty() && !player2_name.isEmpty()) || !(player1_name.equals(player2_name))) {
+        if ((!player1_name.isEmpty() && !player2_name.isEmpty()) && !(player1_name.equals(player2_name))) {
             Intent intent = new Intent(this, Game.class);
             intent.putExtra(player1, player1_name);
             intent.putExtra(player2, player2_name);

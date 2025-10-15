@@ -29,41 +29,19 @@
             <Button
                 android:layout_weight="1"
                 android:onClick="setXor0"
-                android:id="@+id/btn1"
+                android:id="@+id/btn_0"
                 android:text="" />
 
             <Button
                 android:layout_weight="1"
                 android:onClick="setXor0"
-                android:id="@+id/btn2"
+                android:id="@+id/btn_1"
                 android:text="" />
 
             <Button
                 android:layout_weight="1"
                 android:onClick="setXor0"
-                android:id="@+id/btn3"
-                android:text="" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <Button
-                android:layout_weight="1"
-                android:onClick="setXor0"
-                android:id="@+id/btn4"
-                android:text="" />
-
-            <Button
-                android:layout_weight="1"
-                android:onClick="setXor0"
-                android:id="@+id/btn5"
-                android:text="" />
-
-            <Button
-                android:layout_weight="1"
-                android:onClick="setXor0"
-                android:id="@+id/btn6"
+                android:id="@+id/btn_2"
                 android:text="" />
         </TableRow>
 
@@ -73,19 +51,41 @@
             <Button
                 android:layout_weight="1"
                 android:onClick="setXor0"
-                android:id="@+id/btn7"
+                android:id="@+id/btn_3"
                 android:text="" />
 
             <Button
                 android:layout_weight="1"
                 android:onClick="setXor0"
-                android:id="@+id/btn8"
+                android:id="@+id/btn_4"
                 android:text="" />
 
             <Button
                 android:layout_weight="1"
                 android:onClick="setXor0"
-                android:id="@+id/btn9"
+                android:id="@+id/btn_5"
+                android:text="" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn_6"
+                android:text="" />
+
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn_7"
+                android:text="" />
+
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn_8"
                 android:text="" />
         </TableRow>
     </TableLayout>
