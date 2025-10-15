@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:id="@+id/main"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/player1_label"
+        android:layout_centerVertical="true"
+        android:textSize="20sp"
+        android:hint="@string/player1" />
+
+    <EditText
+        android:inputType="text"
+        android:id="@+id/player1_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:textSize="20sp"
+        android:layout_toEndOf="@+id/player1_label"
+        android:hint="@string/player1_hint"
+        android:layout_centerVertical="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/player2_label"
+        android:layout_centerVertical="true"
+        android:textSize="20sp"
+        android:layout_below="@+id/player1_label"
+        android:layout_marginTop="10dp"
+        android:hint="@string/player2" />
+
+    <EditText
+        android:inputType="text"
+        android:id="@+id/player2_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:textSize="20sp"
+        android:layout_below="@+id/player1_label"
+        android:layout_toEndOf="@+id/player2_label"
+        android:hint="@string/player2_hint"
+        android:layout_centerVertical="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/start_game_btn"
+        android:layout_below="@id/player2_label"
+        android:layout_marginTop="30dp"
+        android:onClick="startGame" />
+</RelativeLayout>

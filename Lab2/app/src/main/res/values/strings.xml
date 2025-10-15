@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Lab2</string>
+    <string name="player1">Player 1 (X) </string>
+    <string name="player2">Player 2 (0) </string>
+    <string name="player1_hint">Enter a name for Player 1..</string>
+    <string name="player2_hint">Enter a name for Player 2..</string>
+    <string name="start_game_btn">Start Game</string>
+    <string name="game_state">Game State: </string>
+</resources>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/main"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/game_state"
+        android:textSize="20sp"
+        android:hint="@string/game_state"
+        android:layout_marginBottom="10dp"/>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/main_table"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn1"
+                android:text="" />
+
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn2"
+                android:text="" />
+
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn3"
+                android:text="" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn4"
+                android:text="" />
+
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn5"
+                android:text="" />
+
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn6"
+                android:text="" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn7"
+                android:text="" />
+
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn8"
+                android:text="" />
+
+            <Button
+                android:layout_weight="1"
+                android:onClick="setXor0"
+                android:id="@+id/btn9"
+                android:text="" />
+        </TableRow>
+    </TableLayout>
+</LinearLayout>
