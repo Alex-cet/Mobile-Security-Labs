@@ -6,4 +6,5 @@
     <string name="player2_hint">Enter a name for Player 2..</string>
     <string name="start_game_btn">Start Game</string>
     <string name="game_state">Game State: </string>
+    <string name="change_background_color_action">Change background color</string>
 </resources>
