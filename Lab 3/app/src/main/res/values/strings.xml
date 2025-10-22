@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Lab3</string>
+    <string name="hotel_name_label">Hotel Name: </string>
+    <string name="hotel_name_hint">Enter the hotel name..</string>
+    <string name="hotel_address_label">Address: </string>
+    <string name="hotel_address_hint">Enter the address..</string>
+    <string name="hotel_webpage_label">Webpage: </string>
+    <string name="hotel_webpage_hint">Enter the webpage..</string>
+    <string name="hotel_phone_number_label">Phone number: </string>
+    <string name="hotel_phone_number_hint">Enter the phone number..</string>
+    <string name="save_hotel_button">Save Hotel</string>
+</resources>
