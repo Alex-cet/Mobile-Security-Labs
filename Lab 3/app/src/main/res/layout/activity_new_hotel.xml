@@ -4,112 +4,118 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
     tools:context=".NewHotel">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/new_hotel_toolbar"
         android:layout_width ="match_parent"
-        android:layout_height ="wrap_content"/>
+        android:layout_height ="?attr/actionBarSize"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="10dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/hotel_name_label"
-            android:textSize="20sp"
-            android:hint="@string/hotel_name_label" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
 
-        <EditText
-            android:inputType="text"
-            android:id="@+id/hotel_name"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:autofillHints=""
-            android:textSize="20sp"
-            android:hint="@string/hotel_name_hint"/>
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/hotel_name_label"
+                android:textSize="20sp"
+                android:hint="@string/hotel_name_label" />
+
+            <EditText
+                android:inputType="text"
+                android:id="@+id/hotel_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:textSize="20sp"
+                android:hint="@string/hotel_name_hint"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/hotel_address_label"
+                android:textSize="20sp"
+                android:hint="@string/hotel_address_label" />
+
+            <EditText
+                android:inputType="text"
+                android:id="@+id/hotel_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:textSize="20sp"
+                android:hint="@string/hotel_address_hint" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/hotel_webpage_label"
+                android:textSize="20sp"
+                android:hint="@string/hotel_webpage_label" />
+
+            <EditText
+                android:inputType="text"
+                android:id="@+id/hotel_webpage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:textSize="20sp"
+                android:hint="@string/hotel_webpage_hint" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/hotel_phone_number_label"
+                android:textSize="20sp"
+                android:hint="@string/hotel_phone_number_label" />
+
+            <EditText
+                android:inputType="phone"
+                android:id="@+id/hotel_phone_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:textSize="20sp"
+                android:hint="@string/hotel_phone_number_hint" />
+        </LinearLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save_hotel_button"
+            android:layout_marginTop="20dp"
+            android:onClick="saveHotel" />
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="10dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/hotel_address_label"
-            android:textSize="20sp"
-            android:hint="@string/hotel_address_label" />
-
-        <EditText
-            android:inputType="text"
-            android:id="@+id/hotel_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:autofillHints=""
-            android:textSize="20sp"
-            android:hint="@string/hotel_address_hint" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="10dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/hotel_webpage_label"
-            android:textSize="20sp"
-            android:hint="@string/hotel_webpage_label" />
-
-        <EditText
-            android:inputType="text"
-            android:id="@+id/hotel_webpage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:autofillHints=""
-            android:textSize="20sp"
-            android:hint="@string/hotel_webpage_hint" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="10dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/hotel_phone_number_label"
-            android:textSize="20sp"
-            android:hint="@string/hotel_phone_number_label" />
-
-        <EditText
-            android:inputType="phone"
-            android:id="@+id/hotel_phone_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:autofillHints=""
-            android:textSize="20sp"
-            android:hint="@string/hotel_phone_number_hint" />
-    </LinearLayout>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/save_hotel_button"
-        android:layout_marginTop="20dp"
-        android:onClick="saveHotel" />
 
 </LinearLayout>

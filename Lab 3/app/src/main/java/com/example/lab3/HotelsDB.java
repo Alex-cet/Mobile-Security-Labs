@@ -7,9 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class HotelsDB {
     private HotelsDBHelper hotelsDbHelper;
-    public HotelsDB (Context context) {
+
+    public HotelsDB(Context context) {
         hotelsDbHelper = new HotelsDBHelper(context);
     }
+
     public void insertHotel(String hotelName, String hotelAddress, String hotelWebpage, String hotelPhone) {
         SQLiteDatabase db = hotelsDbHelper.getWritableDatabase();
 
@@ -22,10 +24,10 @@ public class HotelsDB {
         db.insert(HotelsDBSchema.HotelsTable.TABLE_NAME, null, contentVals);
     }
 
-    public Cursor getHotels () {
+    public Cursor getHotels() {
         SQLiteDatabase db = hotelsDbHelper.getReadableDatabase();
         String[] columns = {
-                _ID, HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_NAME, HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_ADDRESS,
+                HotelsDBSchema.HotelsTable._ID, HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_NAME, HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_ADDRESS,
                 HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_WEBPAGE, HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_PHONE_NB
         };
 
@@ -40,6 +42,5 @@ public class HotelsDB {
                 null,
                 sortBy
         );
-
     }
-    }
+}

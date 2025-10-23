@@ -8,5 +8,6 @@
     <string name="hotel_webpage_hint">Enter the webpage..</string>
     <string name="hotel_phone_number_label">Phone number: </string>
     <string name="hotel_phone_number_hint">Enter the phone number..</string>
-    <string name="save_hotel_button">Save Hotel</string>
+    <string name="save_hotel_button">SAVE HOTEL</string>
+    <string name="add_hotel_button">NEW HOTEL</string>
 </resources>

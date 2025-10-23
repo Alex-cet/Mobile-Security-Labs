@@ -1,7 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:orientation="vertical"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="15dp">
 
+    <TextView
+        android:id="@+id/list_hotel_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:paddingBottom="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="start"
+        android:paddingStart="10dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/btn_map"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@color/gray"
+                android:src="@drawable/location_on_24px"
+                android:onClick="openMap"
+                android:contentDescription="Open Map" />
+            <TextView
+                android:id="@+id/list_hotel_address_value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingStart="10dp">
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/btn_website"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@color/gray"
+                android:src="@drawable/link_24px"
+                android:onClick="openWebsite"
+                android:contentDescription="Open Website" />
+                <TextView
+                    android:id="@+id/list_hotel_webpage_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dp">
+                </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/btn_call"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@color/gray"
+                android:src="@drawable/call_24px"
+                android:onClick="callNumber"
+                android:contentDescription="Phone Call" />
+            <TextView
+                android:id="@+id/list_hotel_phone_value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingStart="10dp">
+            </TextView>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
