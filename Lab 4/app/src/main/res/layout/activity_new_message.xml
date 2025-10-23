@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".NewMessage">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/new_message_toolbar"
+        android:layout_width ="match_parent"
+        android:layout_height ="?attr/actionBarSize"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+        <EditText
+            android:inputType="text"
+            android:id="@+id/recipient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:textSize="20sp"
+            android:hint="@string/recipient_name_hint" />
+
+        <EditText
+            android:inputType="text"
+            android:id="@+id/message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:textSize="20sp"
+            android:hint="@string/message_hint" />
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/send_message_btn"
+            android:layout_marginTop="20dp"
+            android:onClick="sendNewMessage" />
+    </LinearLayout>
+
+
+</LinearLayout>

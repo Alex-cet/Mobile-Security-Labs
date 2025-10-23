@@ -35,6 +35,12 @@ public class ListHotels extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        populateListView();
+    }
+
     public void addHotel(View view) {
         Intent intent = new Intent(this, NewHotel.class);
         startActivity(intent);
@@ -42,7 +48,6 @@ public class ListHotels extends AppCompatActivity {
 
     private void populateListView () {
         Cursor cursor = new HotelsDB(this).getHotels();
-
         String[] fromColumns = {
                 HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_NAME, HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_ADDRESS,
                 HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_WEBPAGE, HotelsDBSchema.HotelsTable.COLUMN_NAME_HOTEL_PHONE_NB

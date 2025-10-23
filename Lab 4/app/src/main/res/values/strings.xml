@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Lab4</string>
+    <string name="create_a_new_message">Create a new message</string>
+    <string name="recipient_name_hint">Recipient</string>
+    <string name="message_hint">Message</string>
+    <string name="send_message_btn">Send Message</string>
+</resources>
