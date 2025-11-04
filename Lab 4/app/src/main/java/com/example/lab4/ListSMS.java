@@ -62,7 +62,6 @@ public class ListSMS extends AppCompatActivity {
         LocalBroadcastManager.getInstance(context)
                 .sendBroadcast(newSmsReceived);
 
-
         ArrayList<Message> messages = new ArrayList<>();
         MessageAdapter messageAdapter = new MessageAdapter(this, messages);
         ListView listView = findViewById(R.id.sms_list_view);
@@ -89,43 +88,7 @@ public class ListSMS extends AppCompatActivity {
         if (requestCode == READ_SMS_PERMISSION_CODE &&
                 grantResults.length > 0 &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            ContentResolver contentResolver = getContentResolver();
-            String[] projection = new String[]{
-                    Telephony.Sms.DATE, Telephony.Sms.TYPE,
-                    Telephony.Sms.ADDRESS, Telephony.Sms.BODY,
-            };
-
-            Cursor cursor = contentResolver.query(
-                    Telephony.Sms.CONTENT_URI,
-                    projection,
-                    null,
-                    null,
-                    null,
-                    null
-            );
-
-            if (cursor == null) {
-                return;
-            }
-
-            if (cursor.moveToFirst()) {
-                do {
-                    // Iteration over the SMS messages
-
-                    //
-                    // Retrieve the fields of interest :
-                    // Telephony . Sms . ADDRESS , Telephony . Sms . BODY ,
-                    // Telephony . Sms . TYPE and Telephony . Sms . DATE
-                    //
-                    // Example :
-                    String body = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.BODY));
-
-                    // Save the message in an array
-
-                } while (cursor.moveToNext());
-            }
-
-            cursor.close();
+            // Read message
         }
     }
 
@@ -134,5 +97,45 @@ public class ListSMS extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.conversation_toolbar);
         toolbar.setTitle(findViewById(R.id.recipient_phone_number));
         startActivity(intent);
+    }
+
+    public void readMessage() {
+        ContentResolver contentResolver = getContentResolver();
+        String[] projection = new String[] {
+                Telephony.Sms.DATE, Telephony.Sms.TYPE,
+                Telephony.Sms.ADDRESS, Telephony.Sms.BODY,
+        };
+
+        Cursor cursor = contentResolver.query(
+                Telephony.Sms.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null,
+                null
+        );
+
+        if (cursor == null) {
+            return;
+        }
+
+        if (cursor.moveToFirst()) {
+            do {
+                // Iteration over the SMS messages
+
+                //
+                // Retrieve the fields of interest :
+                // Telephony . Sms . ADDRESS , Telephony . Sms . BODY ,
+                // Telephony . Sms . TYPE and Telephony . Sms . DATE
+                //
+                // Example :
+                String body = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.BODY));
+
+                // Save the message in an array
+
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
     }
 }

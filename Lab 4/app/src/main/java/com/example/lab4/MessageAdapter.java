@@ -25,7 +25,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (convertView == null) {
                 convertView = LayoutInflater
                         .from(getContext())
-                        .inflate(R.layout.activity_list_sms, parent, false);
+                        .inflate(R.layout.single_sms, parent, false);
             }
 
             // Get all of the needed elements
@@ -37,7 +37,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             // Set all of the needed fields
             // Example :
             textPreviewTextView.setText(message.message_text);
-            messageDateTextView.setText(message.message_date.toString());
+            messageDateTextView.setText(message.message_date);
             recipientPhoneNumberTextView.setText(message.recipient_phone_number);
 
             return convertView;
