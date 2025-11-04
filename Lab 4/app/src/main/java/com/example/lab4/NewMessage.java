@@ -1,7 +1,9 @@
 package com.example.lab4;
 
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +33,15 @@ public class NewMessage extends AppCompatActivity {
     }
 
     public void sendNewMessage(View view) {
-
+        SmsManager smsManager = SmsManager.getDefault();
+        String recipient = ((EditText)findViewById(R.id.recipient)).getText().toString();
+        String message = ((EditText)findViewById(R.id.message)).getText().toString();
+        smsManager.sendTextMessage(
+                recipient,
+                null,
+                message,
+                null,
+                null
+        );
     }
 }

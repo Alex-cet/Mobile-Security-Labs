@@ -11,11 +11,10 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/conversation_toolbar"
         android:layout_width ="match_parent"
-        android:layout_height ="?attr/actionBarSize"
-        android:layout_alignParentTop="true"/>
+        android:layout_height ="?attr/actionBarSize"/>
 
     <ListView
-        android:id="@+id/sms_list_view"
+        android:id="@+id/sms_list_view_conversation"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </ListView>
