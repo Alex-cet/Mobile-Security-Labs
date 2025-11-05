@@ -26,22 +26,24 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.util.ArrayList;
 
 public class ListSMS extends AppCompatActivity {
-
+    private MessageAdapter messageAdapter;
+    private ArrayList<Message> messages;
+    private static final int READ_SMS_PERMISSION_CODE = 101;
     private BroadcastReceiver smsReceivedBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context c, Intent intent) {
             String addr = intent.getStringExtra("sender");
             String ts = intent.getStringExtra("timestamp");
             String body = intent.getStringExtra("message");
-            String type = "2"; // incoming message
+            String type = "1"; // incoming message
 
             Message message = new Message(addr, ts, body, type);
 
-            // Add the new message to the adapter
-            // Call notifyDataSetChanged on the adapter
+            // Add the new message to the top of the adapter and refresh the view
+            messages.add(0, message);
+            messageAdapter.notifyDataSetChanged();
         }
     };
-    private static final int READ_SMS_PERMISSION_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,25 +55,16 @@ public class ListSMS extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Messaging Application");
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(smsReceivedBR, new IntentFilter("NEW_SMS_RECEIVED"));
-        Intent newSmsReceived = new Intent("NEW_SMS_RECEIVED");
-        newSmsReceived.putExtra("address", address);
-        newSmsReceived.putExtra("date", date);
-        newSmsReceived.putExtra("body", body);
-
-        LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(newSmsReceived);
-
-        ArrayList<Message> messages = new ArrayList<>();
-        MessageAdapter messageAdapter = new MessageAdapter(this, messages);
+        this.messages = new ArrayList<>();
+        this.messageAdapter = new MessageAdapter(this, messages);
         ListView listView = findViewById(R.id.sms_list_view);
         listView.setAdapter(messageAdapter);
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(smsReceivedBR, new IntentFilter("NEW_SMS_RECEIVED"));
         int readSmsPerm = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS);
         if (readSmsPerm == PackageManager.PERMISSION_GRANTED) {
-            // Read the SMS messages
-            } else {
-            // Request the READ_SMS permission
+            readMessage();
+        } else {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_SMS}, READ_SMS_PERMISSION_CODE);
         }
 
@@ -88,30 +81,32 @@ public class ListSMS extends AppCompatActivity {
         if (requestCode == READ_SMS_PERMISSION_CODE &&
                 grantResults.length > 0 &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // Read message
+            readMessage();
         }
     }
 
     public void createNewMessage(View view) {
         Intent intent = new Intent(this, NewMessage.class);
-        Toolbar toolbar = findViewById(R.id.conversation_toolbar);
-        toolbar.setTitle(findViewById(R.id.recipient_phone_number));
         startActivity(intent);
     }
 
     public void readMessage() {
+        messages.clear();
+
         ContentResolver contentResolver = getContentResolver();
         String[] projection = new String[] {
                 Telephony.Sms.DATE, Telephony.Sms.TYPE,
                 Telephony.Sms.ADDRESS, Telephony.Sms.BODY,
         };
 
+        String sortOrder = Telephony.Sms.DATE + " DESC";
+
         Cursor cursor = contentResolver.query(
                 Telephony.Sms.CONTENT_URI,
                 projection,
                 null,
                 null,
-                null,
+                sortOrder,
                 null
         );
 
@@ -121,21 +116,22 @@ public class ListSMS extends AppCompatActivity {
 
         if (cursor.moveToFirst()) {
             do {
-                // Iteration over the SMS messages
-
-                //
                 // Retrieve the fields of interest :
-                // Telephony . Sms . ADDRESS , Telephony . Sms . BODY ,
-                // Telephony . Sms . TYPE and Telephony . Sms . DATE
-                //
-                // Example :
+                String address = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
                 String body = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.BODY));
+                String date = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.DATE));
+                String type = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.TYPE));
+
+                // Create a new Message object
+                Message message = new Message(address, date, body, type);
 
                 // Save the message in an array
+                messages.add(message);
 
             } while (cursor.moveToNext());
         }
 
         cursor.close();
+        this.messageAdapter.notifyDataSetChanged(); // Refresh the ListView
     }
 }

@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 public class SMSReceiver extends BroadcastReceiver {
 
     @Override
@@ -41,6 +43,11 @@ public class SMSReceiver extends BroadcastReceiver {
             }
         }
 
-        // Send the message to the ListSMS activity
+        Intent newSmsReceived = new Intent("NEW_SMS_RECEIVED");
+        newSmsReceived.putExtra("sender", address);
+        newSmsReceived.putExtra("timestamp", String.valueOf(date));
+        newSmsReceived.putExtra("message", body.toString());
+
+        LocalBroadcastManager.getInstance(context).sendBroadcast(newSmsReceived);
     }
 }
