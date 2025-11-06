@@ -55,7 +55,7 @@ public class ListSMS extends AppCompatActivity {
                 messages.remove(exist);
             }
 
-            // Add the new (or updated) message to the top of the list
+            // Add the new message to the top of the list
             messages.add(0, message);
             messageAdapter.notifyDataSetChanged();
         }
