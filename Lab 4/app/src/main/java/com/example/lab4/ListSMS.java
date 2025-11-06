@@ -24,6 +24,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 public class ListSMS extends AppCompatActivity {
     private MessageAdapter messageAdapter;
@@ -38,8 +40,22 @@ public class ListSMS extends AppCompatActivity {
             String type = "1"; // incoming message
 
             Message message = new Message(addr, ts, body, type);
+            // Check if a conversation with this sender already exists
+            int existingIndex = -1;
+            for (int i = 0; i < messages.size(); i++) {
+                // Assuming 'recipient_phone_number' holds the sender's address in your Message class
+                if (messages.get(i).recipient_phone_number.equals(addr)) {
+                    existingIndex = i;
+                    break;
+                }
+            }
 
-            // Add the new message to the top of the adapter and refresh the view
+            // If it exists, remove it so we can add the updated version to the top
+            if (existingIndex != -1) {
+                messages.remove(existingIndex);
+            }
+
+            // Add the new (or updated) message to the top of the list
             messages.add(0, message);
             messageAdapter.notifyDataSetChanged();
         }
@@ -55,18 +71,27 @@ public class ListSMS extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Messaging Application");
 
-        this.messages = new ArrayList<>();
-        this.messageAdapter = new MessageAdapter(this, messages);
+        messages = new ArrayList<>();
+        messageAdapter = new MessageAdapter(this, messages);
         ListView listView = findViewById(R.id.sms_list_view);
         listView.setAdapter(messageAdapter);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(smsReceivedBR, new IntentFilter("NEW_SMS_RECEIVED"));
-        int readSmsPerm = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS);
-        if (readSmsPerm == PackageManager.PERMISSION_GRANTED) {
-            readMessage();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS},
+                    READ_SMS_PERMISSION_CODE);
         } else {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_SMS}, READ_SMS_PERMISSION_CODE);
+            readMessage();
         }
+
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Message selectedMessage = messages.get(position);
+            Intent intent = new Intent(ListSMS.this, Conversation.class);
+            intent.putExtra("RECIPIENT_PHONE_NUMBER", selectedMessage.recipient_phone_number);
+            startActivity(intent);
+        });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -76,7 +101,15 @@ public class ListSMS extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult (int requestCode, String[] permissions, int[] grantResults) {
+    protected void onResume() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
+            readMessage();
+        }
+        super.onResume();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == READ_SMS_PERMISSION_CODE &&
                 grantResults.length > 0 &&
@@ -94,12 +127,12 @@ public class ListSMS extends AppCompatActivity {
         messages.clear();
 
         ContentResolver contentResolver = getContentResolver();
-        String[] projection = new String[] {
+        String[] projection = new String[]{
                 Telephony.Sms.DATE, Telephony.Sms.TYPE,
                 Telephony.Sms.ADDRESS, Telephony.Sms.BODY,
         };
 
-        String sortOrder = Telephony.Sms.DATE + " DESC";
+        String sortOrder = Telephony.Sms.DATE + " ASC";
 
         Cursor cursor = contentResolver.query(
                 Telephony.Sms.CONTENT_URI,
@@ -115,6 +148,7 @@ public class ListSMS extends AppCompatActivity {
         }
 
         if (cursor.moveToFirst()) {
+            HashMap<String, Message> conversationMap = new HashMap<>();
             do {
                 // Retrieve the fields of interest :
                 String address = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
@@ -123,15 +157,13 @@ public class ListSMS extends AppCompatActivity {
                 String type = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.TYPE));
 
                 // Create a new Message object
-                Message message = new Message(address, date, body, type);
-
-                // Save the message in an array
-                messages.add(message);
-
+                conversationMap.put(address, new Message(address, date, body, type));
             } while (cursor.moveToNext());
-        }
 
-        cursor.close();
-        this.messageAdapter.notifyDataSetChanged(); // Refresh the ListView
+            cursor.close();
+            messages.addAll(conversationMap.values());
+            Collections.sort(messages, (m1, m2) -> Long.compare(Long.parseLong(m2.message_date), Long.parseLong(m1.message_date)));
+        }
+        messageAdapter.notifyDataSetChanged(); // Refresh the ListView
     }
 }

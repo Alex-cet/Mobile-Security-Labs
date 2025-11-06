@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -26,6 +27,16 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 convertView = LayoutInflater
                         .from(getContext())
                         .inflate(R.layout.single_sms, parent, false);
+            }
+
+            LinearLayout messageBox = (LinearLayout) convertView;
+
+            if ("1".equals(message.message_type)) {
+                messageBox.setBackgroundResource(R.drawable.custom_border);
+                messageBox.setGravity(android.view.Gravity.START);
+            } else {
+                messageBox.setBackgroundResource(R.drawable.custom_border_user);
+                messageBox.setGravity(android.view.Gravity.END);
             }
 
             // Get all of the needed elements
