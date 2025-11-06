@@ -52,9 +52,7 @@ public class NewMessage extends AppCompatActivity {
                         null,
                         null
                 );
-                // Show success popup
                 Toast.makeText(this, "Message sent successfully!", Toast.LENGTH_SHORT).show();
-                // Close this activity and go back
                 finish();
             } catch (Exception e) {
                 Toast.makeText(this, "Failed to send message", Toast.LENGTH_SHORT).show();

@@ -40,19 +40,19 @@ public class ListSMS extends AppCompatActivity {
             String type = "1"; // incoming message
 
             Message message = new Message(addr, ts, body, type);
+
             // Check if a conversation with this sender already exists
-            int existingIndex = -1;
+            int exist = -1;
             for (int i = 0; i < messages.size(); i++) {
-                // Assuming 'recipient_phone_number' holds the sender's address in your Message class
                 if (messages.get(i).recipient_phone_number.equals(addr)) {
-                    existingIndex = i;
+                    exist = i;
                     break;
                 }
             }
 
-            // If it exists, remove it so we can add the updated version to the top
-            if (existingIndex != -1) {
-                messages.remove(existingIndex);
+            // If it exists, remove it
+            if (exist != -1) {
+                messages.remove(exist);
             }
 
             // Add the new (or updated) message to the top of the list
@@ -88,7 +88,7 @@ public class ListSMS extends AppCompatActivity {
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
             Message selectedMessage = messages.get(position);
-            Intent intent = new Intent(ListSMS.this, Conversation.class);
+            Intent intent = new Intent(this, Conversation.class);
             intent.putExtra("RECIPIENT_PHONE_NUMBER", selectedMessage.recipient_phone_number);
             startActivity(intent);
         });
@@ -156,7 +156,7 @@ public class ListSMS extends AppCompatActivity {
                 String date = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.DATE));
                 String type = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.TYPE));
 
-                // Create a new Message object
+                // Create a new Message object and add it to the HashMap
                 conversationMap.put(address, new Message(address, date, body, type));
             } while (cursor.moveToNext());
 
