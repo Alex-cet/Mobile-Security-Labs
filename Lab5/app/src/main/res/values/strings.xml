@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Lab5</string>
+    <string name="nc_name">Don\'t forget about your location!</string>
+    <string name="nc_description">We have detected a change in your current location! Enter the app in order to see the updates on your current position.</string>
 </resources>
