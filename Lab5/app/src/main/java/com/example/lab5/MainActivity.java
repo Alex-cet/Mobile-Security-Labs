@@ -1,10 +1,12 @@
 package com.example.lab5;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -15,6 +17,7 @@ import android.location.Location;
 import android.location.LocationRequest;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
@@ -23,6 +26,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -39,6 +43,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     float[] accelerometerValues;
     float[] magneticFieldValues;
+    float oldAzimuth = 0f;
 
     double latitude;
     double longitude;
@@ -48,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        getSensorData();
+        getCurrentLocation();
+        createNotificationChannel();
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -55,28 +65,51 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void getSensorData() throws IllegalAccessException, InstantiationException {
-        SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+    private void getSensorData() {
+        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         Sensor magneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
+        // Accelerometer
         sensorManager.registerListener(
                 new SensorEventListener() {
                     @Override
-                    public void onSensorChanged (SensorEvent sensorEvent) {
-                        accelerometerValues = sensorEvent.values;
-                        // Rotate the compass image
+                    public void onSensorChanged(SensorEvent sensorEvent) {
+                        accelerometerValues = sensorEvent.values.clone();
+                        rotateCompassImage();
                     }
 
                     @Override
-                    public void onAccuracyChanged (Sensor s, int i) {}
+                    public void onAccuracyChanged(Sensor s, int i) {
+                    }
                 },
                 accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL
         );
 
-        float[] rotationMatrix = new float[9];
+        // Magnetic field
+        sensorManager.registerListener(
+                new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent sensorEvent) {
+                        magneticFieldValues = sensorEvent.values.clone();
+                        rotateCompassImage();
+                    }
 
+                    @Override
+                    public void onAccuracyChanged(Sensor s, int i) {
+                    }
+                },
+                magneticField,
+                SensorManager.SENSOR_DELAY_NORMAL
+        );
+    }
+    private void rotateCompassImage() {
+        if (accelerometerValues == null || magneticFieldValues == null) {
+            return;
+        }
+
+        float[] rotationMatrix = new float[9];
         SensorManager.getRotationMatrix(
                 rotationMatrix,
                 null,
@@ -90,7 +123,9 @@ public class MainActivity extends AppCompatActivity {
                 orientation
         );
 
-        RotateAnimation rotateAnimation = new RotateAnimation (
+        float newAzimuth = (float)Math.toDegrees(orientation[0]);
+
+        RotateAnimation rotateAnimation = new RotateAnimation(
                 oldAzimuth,
                 newAzimuth,
                 Animation.RELATIVE_TO_SELF,
@@ -99,48 +134,64 @@ public class MainActivity extends AppCompatActivity {
                 0.5f
         );
         rotateAnimation.setFillAfter(true);
-        rotateAnimation.setDuration(1000);
-        rotateAnimation.setInterpolator(LinearInterpolator.class.newInstance());
-
+        rotateAnimation.setDuration(250);
+        try {
+            rotateAnimation.setInterpolator(LinearInterpolator.class.newInstance());
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
         ImageView compassImageView = findViewById(R.id.compassImage);
-        compassImageView.setAnimation(rotateAnimation);
-
-
+        compassImageView.startAnimation(rotateAnimation);
+        oldAzimuth = newAzimuth;
     }
 
-    private void getCurrentLocation() throws IOException {
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
+    private void getCurrentLocation() {
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         int priority = LocationRequest.QUALITY_BALANCED_POWER_ACCURACY;
         CancellationToken cancellationToken = new CancellationTokenSource().getToken();
 
-        fusedLocationClient.getCurrentLocation(
-                priority,
-                cancellationToken
-        ).addOnSuccessListener(
-                this,
-                new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location == null) {
-                            return;
-                        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    100);
+            return;
+        }
 
+        fusedLocationClient.getCurrentLocation(priority, cancellationToken)
+                .addOnSuccessListener(location -> {
+                    if (location != null) {
                         latitude = location.getLatitude();
                         longitude = location.getLongitude();
-
-                        // Obtain the location in a human readable form
+                        convertParameters();
+                    } else {
+                        fusedLocationClient.getLastLocation().addOnSuccessListener(lastLocation -> {
+                            if (lastLocation != null) {
+                                latitude = lastLocation.getLatitude();
+                                longitude = lastLocation.getLongitude();
+                                convertParameters();
+                            } else {
+                                Log.d("LATITUDE", "NO LOCATION AVAILABLE");
+                            }
+                        });
                     }
-                }
-        );
+                });
+    }
 
+    private void convertParameters() {
         Geocoder geocoder = new Geocoder(this);
         String locationString = "Unknown location";
 
-        List<Address> addresses = geocoder.getFromLocation(
-                latitude,
-                longitude,
-                1
-        );
+        List<Address> addresses = null;
+        try {
+            addresses = geocoder.getFromLocation(
+                    latitude,
+                    longitude,
+                    1
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         if (addresses == null || addresses.isEmpty()) {
             return;
@@ -184,12 +235,10 @@ public class MainActivity extends AppCompatActivity {
 
         PendingIntent pendingCompassIntent =
                 PendingIntent.getActivity(
-                this,
-                0,
-                compassIntent,
-                PendingIntent.FLAG_IMMUTABLE
+                        this,
+                        0,
+                        compassIntent,
+                        PendingIntent.FLAG_IMMUTABLE
                 );
-
-
     }
 }
