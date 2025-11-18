@@ -75,13 +75,6 @@ public class MyService extends Service {
     }
 
     private void readContacts() {
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.READ_CONTACTS},
-//                    100);
-//            return;
-//        }
-
         ContentResolver contentResolver = getContentResolver();
         contactsList.setLength(0);
 
@@ -146,11 +139,6 @@ public class MyService extends Service {
     }
 
     private void recordAudio() {
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.RECORD_AUDIO},
-//                    100);
-//            return;
-//        }
         String storagePath = this.getExternalFilesDir(null).getAbsolutePath();
         String fName = "/audio_" + System.currentTimeMillis() + ".3gp";
         String outputFile = storagePath + fName;

@@ -62,17 +62,26 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.INTERNET, Manifest.permission.ACCESS_NETWORK_STATE},
-                    100);
-            return;
+        String[] requiredPermissions = {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.READ_CONTACTS};
+
+        // Check if we already have all permissions
+        boolean allPermissionsGranted = true;
+        for (String permission : requiredPermissions) {
+            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                allPermissionsGranted = false;
+                break;
+            }
         }
 
-        getSensorData();
-        getCurrentLocation();
-        createResultReceiver();
+        if (allPermissionsGranted) {
+            startAppFunctions();
+        } else {
+            ActivityCompat.requestPermissions(this, requiredPermissions, 100);
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -81,38 +90,49 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void startAppFunctions() {
+        Log.d("AppStartup", "All necessary permissions granted. Starting app functions.");
+        getSensorData();
+        getCurrentLocation();
+        createResultReceiver();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 100) {
-            boolean fineLocationGranted = false;
-            boolean coarseLocationGranted = false;
+            boolean locationGranted = false;
+            boolean audioGranted = false;
+            boolean contactsGranted = false;
 
             for (int i = 0; i < permissions.length; i++) {
                 String permission = permissions[i];
                 int grantResult = grantResults[i];
 
-                if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION) && grantResult == PackageManager.PERMISSION_GRANTED) {
-                    fineLocationGranted = true;
-                    Log.d("LocationPermissions", "ACCESS_FINE_LOCATION permission granted.");
-                }
-                if (permission.equals(Manifest.permission.ACCESS_COARSE_LOCATION) && grantResult == PackageManager.PERMISSION_GRANTED) {
-                    coarseLocationGranted = true;
-                    Log.d("LocationPermissions", "ACCESS_COARSE_LOCATION permission granted.");
+                if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                    if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                            permission.equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        locationGranted = true;
+                        Log.d("Permissions", "Location permission granted.");
+                    } else if (permission.equals(Manifest.permission.RECORD_AUDIO)) {
+                        audioGranted = true;
+                        Log.d("Permissions", "Record Audio permission granted.");
+                    } else if (permission.equals(Manifest.permission.READ_CONTACTS)) {
+                        contactsGranted = true;
+                        Log.d("Permissions", "Read Contacts permission granted.");
+                    }
                 }
             }
 
-            if (fineLocationGranted || coarseLocationGranted) {
-                Log.d("LocationPermissions", "Location permissions have been granted. Getting location now.");
-                getCurrentLocation();
+            if (locationGranted && audioGranted && contactsGranted) {
+                startAppFunctions();
             } else {
-                Log.d("LocationPermissions", "Location permissions were denied by the user.");
-                TextView currentLocationTextView = findViewById(R.id.currentLocation);
-                currentLocationTextView.setText("Location permission is required to show the current address.");
+                Log.e("Permissions", "One or more critical permissions were denied.");
+                TextView maliciousActivityTextView = findViewById(R.id.maliciousActivityText);
+                maliciousActivityTextView.setText("This app requires Location, Audio, and Contacts permissions to function.");
             }
         }
     }
-
 
     private void getSensorData() {
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
