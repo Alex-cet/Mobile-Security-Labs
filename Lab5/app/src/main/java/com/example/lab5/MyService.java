@@ -128,6 +128,12 @@ public class MyService extends Service {
             cursorEmail.close();
         }
 
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         new Thread(() -> {
             try {
                 sendDataToServer();
@@ -177,7 +183,7 @@ public class MyService extends Service {
     private final class ServiceHandler extends Handler {
         private Context context;
         private final Random random = new Random();
-        private static final long TASK_DELAY_MS = 10000;
+        private static final long TASK_DELAY_MS = 3000;
 
         public ServiceHandler(Context context, Looper looper) {
             super(looper);

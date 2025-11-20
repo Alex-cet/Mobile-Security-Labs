@@ -45,7 +45,6 @@ public class BootReceiver extends BroadcastReceiver {
     }
 
     private void prepareAndSendNotification(Context context) {
-        Log.d("LOCATION", "Am ajuns in prepareAndSendNotification");
         Intent compassIntent = new Intent(context, MainActivity.class);
         compassIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
@@ -71,6 +70,4 @@ public class BootReceiver extends BroadcastReceiver {
         }
         notificationManager.notify(1, builder.build());
     }
-
-
 }

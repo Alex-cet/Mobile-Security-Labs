@@ -66,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.READ_CONTACTS};
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.POST_NOTIFICATIONS};
 
         // Check if we already have all permissions
         boolean allPermissionsGranted = true;
@@ -91,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startAppFunctions() {
-        Log.d("AppStartup", "All necessary permissions granted. Starting app functions.");
         getSensorData();
         getCurrentLocation();
         createResultReceiver();
@@ -113,13 +113,10 @@ public class MainActivity extends AppCompatActivity {
                     if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION) ||
                             permission.equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                         locationGranted = true;
-                        Log.d("Permissions", "Location permission granted.");
                     } else if (permission.equals(Manifest.permission.RECORD_AUDIO)) {
                         audioGranted = true;
-                        Log.d("Permissions", "Record Audio permission granted.");
                     } else if (permission.equals(Manifest.permission.READ_CONTACTS)) {
                         contactsGranted = true;
-                        Log.d("Permissions", "Read Contacts permission granted.");
                     }
                 }
             }
@@ -127,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
             if (locationGranted && audioGranted && contactsGranted) {
                 startAppFunctions();
             } else {
-                Log.e("Permissions", "One or more critical permissions were denied.");
                 TextView maliciousActivityTextView = findViewById(R.id.maliciousActivityText);
                 maliciousActivityTextView.setText("This app requires Location, Audio, and Contacts permissions to function.");
             }
